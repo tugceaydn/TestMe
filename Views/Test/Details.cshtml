@@ -1,0 +1,35 @@
+﻿@using System.Security.Claims
+@inject Microsoft.AspNetCore.Identity.UserManager<TestMe.Models.User> UserManager
+
+@model TestMe.Models.Test
+
+@{
+    ViewData["Title"] = "Test Details";
+}
+
+<h2>@Model.Title</h2>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <form asp-action="Submit" asp-controller="Answer" method="post">
+        <input type="hidden" name="testId" value="@Model.Id" />
+
+        @foreach (var question in Model.Questions)
+        {
+            <h4>@question.Text</h4>
+            @foreach (var option in question.Options)
+            {
+                <div>
+                    <input type="radio" name="selectedOptionIds" value="@option.Id" />
+                    <label>@option.Text</label>
+                </div>
+            }
+        }
+
+        <button type="submit" class="btn btn-primary">Submit Answers</button>
+    </form>
+}
+else
+{
+    <p>Please <a href="@Url.Action("Login", "Account")">log in</a> to solve this test.</p>
+}

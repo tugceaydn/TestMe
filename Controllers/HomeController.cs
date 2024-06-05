@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TestMe.Models;
 
@@ -6,16 +7,24 @@ namespace TestMe.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly UserManager<User> _userManager;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(UserManager<User> userManager)
     {
-        _logger = logger;
+        _userManager = userManager;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        if (User.Identity!.IsAuthenticated) {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user != null && await _userManager.IsInRoleAsync(user, "Admin") == false && await _userManager.IsInRoleAsync(user, "User") == false) {
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+        }
+
+       return View();
     }
 
     public IActionResult Privacy()

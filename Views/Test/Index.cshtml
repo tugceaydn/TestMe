@@ -1,0 +1,21 @@
+﻿@model IEnumerable<Test>
+
+@{
+    ViewData["Title"] = "Tests";
+}
+
+<h2>Available Tests</h2>
+
+<div class="row">
+    @foreach (var test in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@test.Title</h5>
+                    <a href="@Url.Action("Details", "Test", new { id = test.Id })" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
