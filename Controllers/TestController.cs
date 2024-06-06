@@ -4,10 +4,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
+using TestMe.ViewModels;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,6 +18,7 @@ namespace TestMe.Controllers
     public class TestController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
         private readonly Test TEST_DATA;
 
         Test getDummyTest()
@@ -76,9 +79,10 @@ namespace TestMe.Controllers
             return SAMPLE_TEST;
         }
 
-        public TestController(ApplicationDbContext context)
+        public TestController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
             TEST_DATA = getDummyTest();
         }
 
@@ -103,23 +107,49 @@ namespace TestMe.Controllers
             return View(test);
         }
 
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new CreateTestViewModel());
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create(Test test)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        test.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //        _context.Add(test);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(test);
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateTestViewModel model)
+        {
+            System.Diagnostics.Debug.WriteLine(ModelState.IsValid);
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                System.Diagnostics.Debug.WriteLine(user);
+
+                model.Questions ??= new List<QuestionViewModel>();
+                var test = new Test
+                {
+                    Title = model.Title,
+                    CreatorId = Int32.Parse(user!.Id),
+                    CreationDate = DateTime.UtcNow,
+                    Questions = model.Questions.Select(q => new Question
+                    {
+                        Text = q.Text,
+                        Options = q.Options.Select(o => new Option
+                        {
+                            Text = o
+                        }).ToList(),
+                        Answer = new Option
+                        {
+                            Text = q.Options[q.AnswerId]
+                        }
+                    }).ToList()
+                };
+
+                _context.Tests.Add(test);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(model);
+        }
 
         //public IActionResult Edit(int id)
         //{

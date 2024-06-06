@@ -1,0 +1,97 @@
+﻿@model TestMe.ViewModels.CreateTestViewModel
+
+@{
+    ViewData["Title"] = "Create Test";
+}
+
+<h2>Create Test</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div id="questions">
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            <div class="question">
+                <h4>Question @i + 1</h4>
+                <div class="form-group">
+                    <label asp-for="Questions[i].Text" class="control-label"></label>
+                    <input asp-for="Questions[i].Text" class="form-control" />
+                    <span asp-validation-for="Questions[i].Text" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label>Options</label>
+                    @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                    {
+                        <div class="option">
+                            <label asp-for="Questions[i].Options[j]" class="control-label"></label>
+                            <input asp-for="Questions[i].Options[j]" class="form-control" />
+                            <span asp-validation-for="Questions[i].Options[j]" class="text-danger"></span>
+                        </div>
+                    }
+                </div>
+                <div class="form-group">
+                    <label asp-for="Questions[i].AnswerId" class="control-label"></label>
+                    <select asp-for="Questions[i].AnswerId" class="form-control">
+                        @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                        {
+                            <option value="@j">@Model.Questions[i].Options[j]</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Questions[i].AnswerId" class="text-danger"></span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-secondary" onclick="addQuestion()">Add Question</button>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+@section Scripts {
+    <script>function addQuestion() {
+            var questionsDiv = document.getElementById('questions');
+            var questionCount = questionsDiv.children.length;
+            var questionHtml = `
+                    <div class="question">
+                        <h4>Question ${questionCount + 1}</h4>
+                        <div class="form-group">
+                            <label for="Questions_${questionCount}__Text" class="control-label">Text</label>
+                            <input type="text" name="Questions[${questionCount}].Text" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Options</label>
+                            <div class="option">
+                                <label for="Questions_${questionCount}__Options_0" class="control-label">Text</label>
+                                <input type="text" name="Questions[${questionCount}].Options[0]" class="form-control" />
+                            </div>
+                            <div class="option">
+                                <label for="Questions_${questionCount}__Options_1" class="control-label">Text</label>
+                                <input type="text" name="Questions[${questionCount}].Options[1]" class="form-control" />
+                            </div>
+                            <div class="option">
+                                <label for="Questions_${questionCount}__Options_2" class="control-label">Text</label>
+                                <input type="text" name="Questions[${questionCount}].Options[2]" class="form-control" />
+                            </div>
+                            <div class="option">
+                                <label for="Questions_${questionCount}__Options_3" class="control-label">Text</label>
+                                <input type="text" name="Questions[${questionCount}].Options[3]" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Questions_${questionCount}__AnswerIndex" class="control-label">Answer</label>
+                            <select name="Questions[${questionCount}].AnswerIndex" class="form-control">
+                                <option value="0">Option 1</option>
+                                <option value="1">Option 2</option>
+                                <option value="2">Option 3</option>
+                                <option value="3">Option 4</option>
+                            </select>
+                        </div>
+                    </div>`;
+            questionsDiv.insertAdjacentHTML('beforeend', questionHtml);
+        }</script>
+}
