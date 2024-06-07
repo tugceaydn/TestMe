@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TestMe.Data;
@@ -11,9 +12,11 @@ using TestMe.Data;
 namespace TestMe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240607064454_updated-test-view-model")]
+    partial class updatedtestviewmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,7 +191,7 @@ namespace TestMe.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AnswerIndex")
+                    b.Property<int>("AnswerId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("TestId")
@@ -202,6 +205,8 @@ namespace TestMe.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnswerId");
 
                     b.HasIndex("TestId");
 
@@ -384,6 +389,12 @@ namespace TestMe.Migrations
 
             modelBuilder.Entity("TestMe.Models.Question", b =>
                 {
+                    b.HasOne("TestMe.Models.Option", "Answer")
+                        .WithMany()
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TestMe.Models.Test", null)
                         .WithMany("Questions")
                         .HasForeignKey("TestId");
@@ -391,6 +402,8 @@ namespace TestMe.Migrations
                     b.HasOne("TestMe.Models.UserTest", null)
                         .WithMany("Questions")
                         .HasForeignKey("UserTestId");
+
+                    b.Navigation("Answer");
                 });
 
             modelBuilder.Entity("TestMe.Models.Question", b =>

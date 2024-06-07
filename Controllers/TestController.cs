@@ -4,10 +4,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
+using TestMe.ViewModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,110 +19,126 @@ namespace TestMe.Controllers
     public class TestController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly Test TEST_DATA;
+        private readonly UserManager<User> _userManager;
 
-        Test getDummyTest()
-        {
-
-            var OPTION1 = new Option
-            {
-                Id = 567,
-                Text = "Option1"
-            };
-
-            var OPTION2 = new Option
-            {
-                Id = 563217,
-                Text = "Option2"
-            };
-
-            var OPTION3 = new Option
-            {
-                Id = 5672,
-                Text = "Option3"
-            };
-
-            var OPTION4 = new Option
-            {
-                Id = 562167,
-                Text = "Option4"
-            };
-
-            var SAMPLE_TEST = new Test
-            {
-                Id = 123,
-                Title = "Test Title",
-                CreatorId = 123456,
-                CreationDate = new DateTime(),
-                Questions = new List<Question>{
-                    new Question {
-                        Id = 126123,
-                        Text = "Question is here",
-                        Answer = OPTION2,
-                        Options = new List<Option>{ OPTION1, OPTION2, OPTION3, OPTION4 }
-                    },
-                    new Question {
-                        Id = 66126123,
-                        Text = "Question2 is here",
-                        Answer = OPTION3,
-                        Options = new List<Option>{ OPTION1, OPTION2, OPTION3, OPTION4 }
-                    },
-                    new Question {
-                        Id = 265226123,
-                        Text = "Question3 is here",
-                        Answer = OPTION1,
-                        Options = new List<Option>{ OPTION1, OPTION2, OPTION3, OPTION4 }
-                    }
-                }
-            };
-
-            return SAMPLE_TEST;
-        }
-
-        public TestController(ApplicationDbContext context)
+        public TestController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
-            TEST_DATA = getDummyTest();
+            _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var tests = new List<Test>
-            {
-                TEST_DATA
-            };
-
+            // Retrieve all tests from the database
+            var tests = await _context.Tests.Include(t => t.Questions)
+                                            .ThenInclude(q => q.Options)
+                                            .ToListAsync();
             return View(tests);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var test = TEST_DATA;
+            var test = await _context.Tests
+                                 .Include(t => t.Questions)
+                                    .ThenInclude(q => q.Options)
+                                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (test == null)
             {
                 return NotFound();
             }
+
             return View(test);
         }
 
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
+        [HttpGet]
+        [Authorize]
+        public IActionResult Create()
+        {
+            return View(new CreateTestViewModel());
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Create(Test test)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        test.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //        _context.Add(test);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(test);
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateTestViewModel model)
+        {
+            // Check if has at least 2 questions
+            if (model.Questions.Count < 2)
+            {
+                ModelState.AddModelError(string.Empty, "Your test should have at least 2 questions");
+            }
+
+            // Check for empty options and duplicate options within each question
+            foreach (var question in model.Questions)
+            {
+                if (string.IsNullOrWhiteSpace(question.Text))
+                {
+                    ModelState.AddModelError(string.Empty, "A question has empty text.");
+                }
+
+                var emptyOptions = question.Options
+                    .Where(o => string.IsNullOrWhiteSpace(o))
+                    .ToList();
+
+                if (emptyOptions.Any())
+                {
+                    ModelState.AddModelError(string.Empty, $"Question '{question.Text}' has empty options.");
+                }
+
+                var duplicateOptions = question.Options
+                    .GroupBy(o => o != null ? o.Trim() : "")
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                if (duplicateOptions.Any())
+                {
+                    ModelState.AddModelError(string.Empty, $"Duplicate options found in question '{question.Text}': {string.Join(", ", duplicateOptions)}");
+                }
+            }
+
+            // Check for duplicate questions
+            var duplicateQuestions = model.Questions
+                .GroupBy(q => q.Text != null ? q.Text.Trim() : "")
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateQuestions.Any())
+            {
+                ModelState.AddModelError(string.Empty, "Duplicate questions found: " + string.Join(", ", duplicateQuestions));
+            }
+
+            if (ModelState.IsValid)
+            {
+                // Get user
+                var user = await _userManager.GetUserAsync(User);
+
+                // Create new Test entry for DB
+                var test = new Test
+                {
+                    Title = model.Title,
+                    CreatorId = user!.Id,
+                    CreationDate = DateTime.UtcNow,
+                    Questions = model.Questions.Select(q => new Question
+                    {
+                        Text = q.Text,
+                        Options = q.Options.Select(o => new Option
+                        {
+                            Text = o
+                        }).ToList(),
+                        AnswerIndex = q.AnswerIndex
+                    }).ToList()
+                };
+
+                _context.Tests.Add(test);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(model);
+        }
 
         //public IActionResult Edit(int id)
         //{

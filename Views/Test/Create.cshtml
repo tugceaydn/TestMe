@@ -1,0 +1,165 @@
+﻿@model TestMe.ViewModels.CreateTestViewModel
+
+@{
+    ViewData["Title"] = "Create Test";
+}
+
+<form asp-action="Create" method="post" class="test-form col-7 mx-auto">
+    <div class="form-group">
+        <input asp-for="Title" placeholder="New Test" class="test-title-input border-bottom form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div id="questions">
+        @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+            <div class="question py-4 border-top position-relative" id="question-@i">
+                <div class="question-index">@(i + 1)</div>
+                <div class="form-group d-flex align-items-center justify-between">
+                    <input type="text" asp-for="Questions[i].Text" placeholder="Question @(i + 1) " class="question-input form-control" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" onclick="onDeleteQuestion(this)">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                    </svg>
+                </div>
+                <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
+                    @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                    {
+                        <div class="option">
+                            <label asp-for="Questions[i].Options[j]" class="text-secondary mb-1 control-label">Option</label>
+                            <input type="text" asp-for="Questions[i].Options[j]" placeholder="Option @(j+1)" class="option-input form-control" oninput="onChangeOption(this, @i, @j)" />
+                        </div>
+                    }
+                </div>
+                <div class="answer form-group mt-3">
+                    <label for="Questions[@i].AnswerIndex" class="mb-1 control-label">Answer</label>
+                    <select asp-for="Questions[i].AnswerIndex" class="form-select">
+                        @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                        {
+                            <option value="@j">@Model.Questions[i].Options[j]</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-outline-primary w-100 mt-3" onclick="addQuestion()">Add Question +</button>
+    <button type="submit" class="btn btn-primary w-100 mt-3">Create</button>
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const allQuestions = [...document.querySelectorAll(`.question`)];
+
+            console.log({ allQuestions });
+
+            allQuestions.forEach(question => {
+                const optionsSelect = question.querySelector(`select`);
+                const values = [...question.querySelectorAll(`.option-input`)].map(n => n.value);
+
+                console.log({ question, values });
+
+                if (values.some(value => value.trim() === '')) {
+                    optionsSelect.disabled = true;
+                }
+            })
+        })
+    </script>
+
+    <script>
+        function addQuestion() {
+            const questionsDiv = document.getElementById('questions');
+            const questionCount = questionsDiv.children.length;
+            const questionHtml = `
+                    <div class="question py-4 border-top position-relative" id="question-${questionCount}">
+                        <div class="question-index">${questionCount + 1}</div>
+                        <div class="form-group d-flex align-items-center justify-between">
+                            <input type="text" name="Questions[${questionCount}].Text" placeholder="Question ${questionCount + 1}" class="question-input form-control" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" onclick="onDeleteQuestion(this)">
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                            </svg>
+                        </div>
+                        <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[0]" placeholder="Option 1" class="option-input form-control" oninput="onChangeOption(this, ${questionCount}, 0)" />
+                            </div>
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[1]" placeholder="Option 2" class="option-input form-control" oninput="onChangeOption(this, ${questionCount}, 1)" />
+                            </div>
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[2]" placeholder="Option 3" class="option-input form-control" oninput="onChangeOption(this, ${questionCount}, 2)" />
+                            </div>
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[3]" placeholder="Option 4" class="option-input form-control" oninput="onChangeOption(this, ${questionCount}, 3)" />
+                            </div>
+                        </div>
+                        <div class="answer form-group mt-3">
+                            <label for="Questions_${questionCount}__AnswerIndex" class="mb-1 control-label">Answer</label>
+                            <select name="Questions[${questionCount}].AnswerIndex" disabled class="form-select">
+                                <option>Please fill out the options</option>
+                            </select>
+                        </div>
+                    </div>
+            `;
+
+            questionsDiv.insertAdjacentHTML('beforeend', questionHtml);
+
+            //const newTrashIcon = document.querySelector(`#question-${questionCount} .bi-trash`);
+            //newTrashIcon.addEventListener('click', onDeleteQuestion);
+        }
+
+        function onChangeOption(element, questionIndex, optionIndex) {
+            const optionsSelect = document.querySelector(`#question-${questionIndex} select`);
+            const values = [...document.querySelectorAll(`#question-${questionIndex} .option-input`)].map(n => n.value);
+
+            console.log({ element, questionIndex, optionIndex, optionsSelect, values });
+
+            values[optionIndex] = element.value;
+
+            optionsSelect.innerHTML = `
+                <option value="0">${values[0]}</option>
+                <option value="1">${values[1]}</option>
+                <option value="2">${values[2]}</option>
+                <option value="3">${values[3]}</option>
+            `;
+
+            if (values.some(value => value.trim() === '')) {
+                optionsSelect.disabled = true;
+            } else {
+                optionsSelect.removeAttribute('disabled')
+            }
+        }
+
+        function onDeleteQuestion(element) {
+            const questionElement = element.parentElement.parentElement;
+
+            questionElement.remove();
+
+            const allQuestions = [...document.querySelectorAll(`.question`)];
+
+            allQuestions.forEach((question, questionIndex) => {
+                // Update question index
+                question.querySelector('.question-index').textContent = questionIndex + 1;
+
+                // Update question input attributes
+                question.querySelector('.question-input').name = `Questions[${questionIndex}].Text`;
+                question.querySelector('.question-input')['asp-for'] = `Questions[${questionIndex}].Text`;
+                question.querySelector('.question-input').placeholder = `Question ${questionIndex + 1}`;
+
+                // Update question option attributes
+                question.querySelectorAll('.option-input').forEach((option, optionIndex) => {
+                    option.name = `Questions[${questionIndex}].Options[${optionIndex}]`;
+                    option['asp-for'] = `Questions[${questionIndex}].Options[${optionIndex}]`
+                })
+            })
+        }
+    </script>
+}

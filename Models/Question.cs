@@ -8,7 +8,7 @@ namespace TestMe.Models
         public string Text { get; set; }
 
         public List<Option> Options { get; set; }
-        public Option Answer { get; set; }
+        public int AnswerIndex { get; set; }
     }
 }
 
