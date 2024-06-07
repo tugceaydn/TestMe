@@ -10,7 +10,6 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
-    <None Remove="ViewModels\" />
     <None Remove="Views\Test\" />
   </ItemGroup>
   <ItemGroup>
@@ -31,7 +30,6 @@
     <Compile Remove="Data\Migrations\00000000000000_CreateIdentitySchema.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ViewModels\" />
     <Folder Include="Views\Test\" />
   </ItemGroup>
 </Project>
