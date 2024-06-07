@@ -10,10 +10,11 @@ namespace TestMe.ViewModels
             Text = "";
             Options = new List<string>();
         }
+
         [Required]
         public string Text { get; set; }
         public List<string> Options { get; set; }
-        public int AnswerId { get; set; }
+        public int AnswerIndex { get; set; }
     }
 }
 

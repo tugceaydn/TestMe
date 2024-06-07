@@ -24,3 +24,12 @@ body {
 #login ~ h1 ~ div .col-md-6.col-md-offset-2 {
     display: none;
 }
+
+input {
+    box-shadow: none !important;
+    border-radius: 0.4rem !important;
+}
+
+input::placeholder {
+    color: var(--bs-gray-500) !important;
+}
