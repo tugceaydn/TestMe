@@ -7,10 +7,12 @@ namespace TestMe.ViewModels
 	{
         public QuestionViewModel()
         {
+            Id = -1;
             Text = "";
             Options = new List<string>();
         }
 
+        public int Id { get; set; }
         [Required]
         public string Text { get; set; }
         public List<string> Options { get; set; }

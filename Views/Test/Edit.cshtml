@@ -1,10 +1,10 @@
 ﻿@model TestMe.ViewModels.CreateTestViewModel
 
 @{
-    ViewData["Title"] = "Create Test";
+    ViewData["Title"] = "Edit Test";
 }
 
-<form asp-action="Create" method="post" class="test-form col-7 mx-auto">
+<form asp-action="Edit" method="post" class="test-form col-7 mx-auto">
     <div class="form-group">
         <input asp-for="Title" placeholder="New Test" class="test-title-input border-bottom form-control" />
         <span asp-validation-for="Title" class="text-danger"></span>
@@ -12,7 +12,7 @@
 
     <div id="questions">
         @for (int i = 0; i < Model.Questions.Count; i++)
-        {
+            {
             <div class="question py-4 border-top position-relative" id="question-@i">
                 <div class="question-index">@(i + 1)</div>
                 <div class="form-group d-flex align-items-center justify-between">
@@ -51,7 +51,8 @@
 </form>
 
 @section Scripts {
-    <script>document.addEventListener('DOMContentLoaded', () => {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
             const allQuestions = [...document.querySelectorAll(`.question`)];
 
             allQuestions.forEach(question => {
@@ -62,50 +63,52 @@
                     optionsSelect.disabled = true;
                 }
             })
-        })</script>
+        })
+    </script>
 
-    <script>function addQuestion() {
+    <script>
+        function addQuestion() {
             const questionsDiv = document.getElementById('questions');
             const questionCount = questionsDiv.children.length;
             const questionHtml = `
-                        <div class="question py-4 border-top position-relative" id="question-${questionCount}">
-                            <div class="question-index">${questionCount + 1}</div>
-                            <div class="form-group d-flex align-items-center justify-between">
-                                <input type="text" name="Questions[${questionCount}].Text" placeholder="Question ${questionCount + 1}" class="question-input form-control" />
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" onclick="onDeleteQuestion(${questionCount})">
-                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-                                  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-                                </svg>
+                    <div class="question py-4 border-top position-relative" id="question-${questionCount}">
+                        <div class="question-index">${questionCount + 1}</div>
+                        <div class="form-group d-flex align-items-center justify-between">
+                            <input type="text" name="Questions[${questionCount}].Text" placeholder="Question ${questionCount + 1}" class="question-input form-control" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16" onclick="onDeleteQuestion(${questionCount})">
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                            </svg>
+                        </div>
+                        <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[0]" placeholder="Option 1" class="option-input form-control" oninput="onChangeOption(this, 0)" />
                             </div>
-                            <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
-                                <div class="option">
-                                    <label class="text-secondary mb-1 control-label">Option</label>
-                                    <input type="text" name="Questions[${questionCount}].Options[0]" placeholder="Option 1" class="option-input form-control" oninput="onChangeOption(this, 0)" />
-                                </div>
-                                <div class="option">
-                                    <label class="text-secondary mb-1 control-label">Option</label>
-                                    <input type="text" name="Questions[${questionCount}].Options[1]" placeholder="Option 2" class="option-input form-control" oninput="onChangeOption(this, 1)" />
-                                </div>
-                                <div class="option">
-                                    <label class="text-secondary mb-1 control-label">Option</label>
-                                    <input type="text" name="Questions[${questionCount}].Options[2]" placeholder="Option 3" class="option-input form-control" oninput="onChangeOption(this, 2)" />
-                                </div>
-                                <div class="option">
-                                    <label class="text-secondary mb-1 control-label">Option</label>
-                                    <input type="text" name="Questions[${questionCount}].Options[3]" placeholder="Option 4" class="option-input form-control" oninput="onChangeOption(this, 3)" />
-                                </div>
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[1]" placeholder="Option 2" class="option-input form-control" oninput="onChangeOption(this, 1)" />
                             </div>
-                            <div class="answer form-group mt-3">
-                                <label for="Questions_${questionCount}__AnswerIndex" class="mb-1 control-label">Answer</label>
-                                <select name="Questions[${questionCount}].AnswerIndex" disabled class="form-select">
-                                    <option value="0">Please fill out the options</option>
-                                    <option value="1">Please fill out the options</option>
-                                    <option value="2">Please fill out the options</option>
-                                    <option value="3">Please fill out the options</option>
-                                </select>
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[2]" placeholder="Option 3" class="option-input form-control" oninput="onChangeOption(this, 2)" />
+                            </div>
+                            <div class="option">
+                                <label class="text-secondary mb-1 control-label">Option</label>
+                                <input type="text" name="Questions[${questionCount}].Options[3]" placeholder="Option 4" class="option-input form-control" oninput="onChangeOption(this, 3)" />
                             </div>
                         </div>
-                `;
+                        <div class="answer form-group mt-3">
+                            <label for="Questions_${questionCount}__AnswerIndex" class="mb-1 control-label">Answer</label>
+                            <select name="Questions[${questionCount}].AnswerIndex" disabled class="form-select">
+                                <option value="0">Please fill out the options</option>
+                                <option value="1">Please fill out the options</option>
+                                <option value="2">Please fill out the options</option>
+                                <option value="3">Please fill out the options</option>
+                            </select>
+                        </div>
+                    </div>
+            `;
 
             questionsDiv.insertAdjacentHTML('beforeend', questionHtml);
         }
@@ -153,5 +156,6 @@
             }
 
             allQuestions[allQuestions.length - 1].remove();
-        }</script>
+        }
+    </script>
 }
