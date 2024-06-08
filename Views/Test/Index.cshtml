@@ -1,21 +1,40 @@
-﻿@model IEnumerable<Test>
+﻿@model IEnumerable<TestMe.ViewModels.TestListViewModel>
 
 @{
     ViewData["Title"] = "Tests";
 }
 
-<h2>Available Tests</h2>
-
-<div class="row">
-    @foreach (var test in Model)
-    {
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">@test.Title</h5>
-                    <a href="@Url.Action("Details", "Test", new { id = test.Id })" class="btn btn-primary">View Details</a>
-                </div>
-            </div>
-        </div>
-    }
+<div class="container mt-5">
+    <h2 class="mb-4">Tests</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Creator ID</th>
+                <th>Creation Date</th>
+                <th># Questions</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var test in Model)
+            {
+                <tr onclick="location.href = '@Url.Action("Details", "Test", new { id = test.Id })'">
+                    <td>@test.Title</td>
+                    <td>@test.CreatorId</td>
+                    <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@test.NumberOfQuestions</td>
+                    <td>
+                        @if (test.IsCompletedByMe)
+                        {
+                            <div class="tag success">Complete</div>
+                        } else
+                        {
+                            <div class="tag">Not Complete</div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

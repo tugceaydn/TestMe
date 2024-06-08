@@ -11,7 +11,7 @@ namespace TestMe.Models
 
         public DateTime CompletionDate { get; set; }
 
-        public List<Question> Questions { get; set; }
+        public List<int> UserAnswers { get; set; }
     }
 }
 

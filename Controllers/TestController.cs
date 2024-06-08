@@ -29,11 +29,30 @@ namespace TestMe.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Get user
+            var user = await _userManager.GetUserAsync(User);
+
             // Retrieve all tests from the database
             var tests = await _context.Tests.Include(t => t.Questions)
                                             .ThenInclude(q => q.Options)
                                             .ToListAsync();
-            return View(tests);
+
+            // Get UserTests entries for the current user
+            var userTests = await _context.UserTests
+                                          .Where(ut => ut.UserId == user!.Id)
+                                          .ToListAsync();
+
+            var testListViewModel = tests.Select(t => new TestListViewModel
+            {
+                Id = t.Id,
+                Title = t.Title,
+                NumberOfQuestions = t.Questions.Count,
+                IsCompletedByMe = userTests.Find(ut => ut.TestId == t.Id) != null,
+                CreatorId = t.CreatorId,
+                CreationDate = t.CreationDate,
+            });
+
+            return View(testListViewModel);
         }
 
         public async Task<IActionResult> Details(int id)
@@ -136,7 +155,7 @@ namespace TestMe.Controllers
                 _context.Tests.Add(test);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Test");
             }
 
             return View(model);
@@ -286,7 +305,7 @@ namespace TestMe.Controllers
 
                     await _context.SaveChangesAsync();
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Test");
                 }
                 else
                 {
@@ -314,7 +333,7 @@ namespace TestMe.Controllers
                 _context.Tests.Add(test);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Test");
             }
 
             return View(model);
