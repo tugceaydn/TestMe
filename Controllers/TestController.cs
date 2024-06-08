@@ -31,6 +31,7 @@ namespace TestMe.Controllers
         {
             // Get user
             var user = await _userManager.GetUserAsync(User);
+            var userId = user == null ? "unknown" : user.Id;
 
             // Retrieve all tests from the database
             var tests = await _context.Tests.Include(t => t.Questions)
@@ -39,7 +40,7 @@ namespace TestMe.Controllers
 
             // Get UserTests entries for the current user
             var userTests = await _context.UserTests
-                                          .Where(ut => ut.UserId == user!.Id)
+                                          .Where(ut => ut.UserId == userId)
                                           .ToListAsync();
 
             var testListViewModel = tests.Select(t => new TestListViewModel
