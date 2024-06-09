@@ -19,4 +19,3 @@ namespace TestMe.ViewModels
         public int AnswerIndex { get; set; }
     }
 }
-

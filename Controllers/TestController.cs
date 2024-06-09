@@ -59,21 +59,6 @@ namespace TestMe.Controllers
             return View(testListViewModel);
         }
 
-        public async Task<IActionResult> Details(int id)
-        {
-            var test = await _context.Tests
-                                 .Include(t => t.Questions)
-                                    .ThenInclude(q => q.Options)
-                                 .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (test == null)
-            {
-                return NotFound();
-            }
-
-            return View(test);
-        }
-
         // Create Page UI
         [HttpGet]
         [Authorize]
@@ -341,6 +326,74 @@ namespace TestMe.Controllers
             }
 
             return View(model);
+        }
+
+        // Solve Test Page UI
+        public async Task<IActionResult> Details(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Check if user has already solved this test
+            var userTest = await _context.UserTests
+                .FirstOrDefaultAsync(ut => ut.TestId == id && ut.UserId == user!.Id);
+
+            if (userTest != null)
+            {
+                return RedirectToAction("Index", "Test");
+            }
+
+            var test = await _context.Tests
+                .Include(t => t.Questions)
+                    .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (test == null)
+            {
+                return NotFound();
+            }
+
+            var model = new SolveTestViewModel
+            {
+                TestId = test.Id,
+                Title = test.Title,
+                Questions = test.Questions.Select(q => new QuestionSolveViewModel
+                {
+                    Id = q.Id,
+                    Text = q.Text,
+                    Options = q.Options?.Select(o => o.Text).ToList() ?? new List<string>()
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+
+        // Solve Test Form Submit
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details(SolveTestViewModel model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (ModelState.IsValid)
+            {
+                var userTest = new UserTest
+                {
+                    UserId = user!.Id,
+                    TestId = model.TestId,
+                    CompletionDate = DateTime.UtcNow,
+                    UserAnswers = model.Questions.Select(q => q.SelectedOption).ToList()
+                };
+
+                _context.UserTests.Add(userTest);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Test");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View("Details", model);
         }
 
         //public IActionResult Delete(int id)

@@ -1,0 +1,36 @@
+﻿.details .option-box {
+    background-color: white;
+    color: black;
+/*    border: 1px solid #ccc;*/
+/*    padding: 10px;*/
+    cursor: pointer;
+}
+
+.details .option-box:hover, .details .option-radio:hover {
+    background-color: #f9f9fa;
+    color: black;
+    cursor: pointer;
+}
+
+.details .option-box.selected {
+    background-color: #212121;
+    border-radius: 8px;
+    color: white;
+}
+
+/*.details .option-input {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: inherit;
+}*/
+
+.details .option-radio:checked + .option-input {
+    background-color: #212121;
+    color: white;
+}
+
+.details .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
