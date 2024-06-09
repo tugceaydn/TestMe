@@ -1,0 +1,34 @@
+﻿@inject Microsoft.AspNetCore.Identity.UserManager<TestMe.Models.User> UserManager
+
+@{
+    ViewData["Title"] = "About";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">About</h2>
+    <p>TestMe is a platform where you can create, solve, and manage multiple-choice tests!</p>
+    <p>Unauthenticated users can view available tests but cannot create or solve them.</p>
+    <p>Authenticated users can create new tests, solve existing tests, and view their results.</p>
+    <p>Let's Log in or create a new account and join the community of test lovers!!</p>
+    <br/>
+    <table>
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>School No</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="cursor-default">
+                <td>Emir Matik</td>
+                <td>1306190012</td>
+            </tr>
+            <tr class="cursor-default">
+                <td>Tuğçe Aydın</td>
+                <td>1306200041</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+

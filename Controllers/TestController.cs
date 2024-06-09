@@ -12,8 +12,6 @@ using TestMe.Models;
 using TestMe.ViewModels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace TestMe.Controllers
 {
     public class TestController : Controller
@@ -32,6 +30,11 @@ namespace TestMe.Controllers
             // Get user
             var user = await _userManager.GetUserAsync(User);
             var userId = user == null ? "unknown" : user.Id;
+
+            if (User.Identity!.IsAuthenticated && user != null && await _userManager.IsInRoleAsync(user, "Admin") == false && await _userManager.IsInRoleAsync(user, "User") == false)
+            {
+                await _userManager.AddToRoleAsync(user, "User");
+            }
 
             // Retrieve all tests from the database
             var tests = await _context.Tests.Include(t => t.Questions)

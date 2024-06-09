@@ -1,40 +1,134 @@
 ﻿@model IEnumerable<TestMe.ViewModels.TestListViewModel>
+@using System.Security.Claims
+@inject Microsoft.AspNetCore.Identity.UserManager<TestMe.Models.User> UserManager
 
 @{
     ViewData["Title"] = "Tests";
+
+    // Initialize userId variable
+    string userId = string.Empty;
+
+    // Retrieve the current user
+    var user = await UserManager.GetUserAsync(User);
+
+    // Get the user ID if the user is not null
+    if (user != null)
+    {
+        userId = user.Id;
+    }
 }
 
-<div class="container mt-5">
-    <h2 class="mb-4">Tests</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Creator ID</th>
-                <th>Creation Date</th>
-                <th># Questions</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var test in Model)
-            {
-                <tr onclick="location.href = '@Url.Action("Details", "Test", new { id = test.Id })'">
-                    <td>@test.Title</td>
-                    <td>@test.CreatorId</td>
-                    <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td>@test.NumberOfQuestions</td>
-                    <td>
-                        @if (test.IsCompletedByMe)
-                        {
-                            <div class="tag success">Complete</div>
-                        } else
-                        {
-                            <div class="tag">Not Complete</div>
-                        }
-                    </td>
+<div class="mt-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2>Tests</h2>
+        @if (userId != "") {
+            <button onclick="location.href = '@Url.Action("Create", "Test")'" class="btn btn-outline-primary mb-2">Create Test +</button>
+        }
+    </div>
+    <div class="tabs mb-3">
+        <button type="button" id="all-tests" class="tab active" onclick="openTab(this, 'all-tests')">All</button>
+        @if (userId != "") {
+            <button type="button" id="my-tests" class="tab" onclick="openTab(this, 'my-tests')">My Tests</button>
+        }
+    </div>
+
+    <div class="tab-content all-tests">
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Creator ID</th>
+                    <th>Creation Date</th>
+                    <th># Questions</th>
+                    <th>Status</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var test in Model)
+                {
+                    <tr onclick="location.href = '@Url.Action("Details", "Test", new { id = test.Id })'">
+                        <td>@test.Title</td>
+                        <td>@test.CreatorId</td>
+                        <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@test.NumberOfQuestions</td>
+                        <td>
+                            @if (test.CreatorId == userId) {
+                                <div class="tag mine">My Test</div>
+                            } else if (test.IsCompletedByMe) {
+                                <div class="tag success">Complete</div>
+                            } else {
+                                <div class="tag">Not Complete</div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.ToList().Count == 0)
+        {
+            <div class="w-100 text-center text-secondary mt-5">No tests found here</div>
+
+        }
+    </div>
+
+    <div class="tab-content my-tests d-none">
+        <table class="my-tests">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Creator ID</th>
+                    <th>Creation Date</th>
+                    <th># Questions</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var test in Model.Where(t => t.CreatorId == userId))
+                {
+                    <tr onclick="location.href = '@Url.Action("Details", "Test", new { id = test.Id })'">
+                        <td>@test.Title</td>
+                        <td>@test.CreatorId</td>
+                        <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@test.NumberOfQuestions</td>
+                        <td>
+                            <div class="tag mine">My Test</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Where(t => t.CreatorId == userId).ToList().Count == 0)
+        {
+            <div class="w-100 text-center text-secondary mt-5">No tests found here</div>
+
+        }
+
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        function openTab(element, tabid) {
+            const tables = document.querySelectorAll(".tab-content");
+
+            // make all tables disappear
+            for (let i = 0; i < tables.length; i++) {
+                tables[i].classList.add('d-none');
+            }
+
+            const tabs = document.querySelectorAll(".tab");
+
+            // make all tabs inactive
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+
+            // make selected table appear
+            document.querySelector(`.tab-content.${tabid}`).classList.remove('d-none');
+
+            // make selected tab active
+            element.classList.add('active');
+
+        }
+    </script>
+}
