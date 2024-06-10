@@ -1,41 +1,73 @@
 ﻿@model TestMe.ViewModels.SolveTestViewModel
+@inject Microsoft.AspNetCore.Identity.UserManager<TestMe.Models.User> UserManager
 
 @{
     ViewData["Title"] = "Solve Test";
+    // Initialize userId variable
+    string? userId = null;
+    bool isCreator = false;
+
+    // Retrieve the current user
+    var user = await UserManager.GetUserAsync(User);
+
+    // Get the user ID if the user is not null
+    if (user != null)
+    {
+        userId = user.Id;
+        isCreator = userId == Model.CreatorId;
+    }
+
 }
 
 <form asp-action="Details" method="post" class="test-form col-7 mx-auto details">
-    @Html.AntiForgeryToken()
     <div class="form-group">
-        <input asp-for="Title" class="test-title-input border-bottom form-control" readonly />
-    </div>
-
-    <div id="questions">
-        @for (int i = 0; i < Model.Questions.Count; i++)
+        <input asp-for="Title" class="test-title-input form-control" readonly />
+        @if (isCreator)
         {
-            <div class="question py-4 border-top position-relative" id="question-@i">
-                <div class="question-index">@(i + 1)</div>
-                <div class="form-group d-flex align-items-center justify-between">
-                    <input type="hidden" asp-for="Questions[i].Id" value="@Model.Questions[i].Id" />
-                    <input type="text" asp-for="Questions[i].Text" class="question-input form-control" readonly />
-                </div>
-                <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
-                    @if (Model.Questions[i].Options != null && Model.Questions[i].Options.Count > 0)
-                    {
-                        @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
-                        {
-                            <div class="option-box" data-question="@i" data-option="@j">
-                                <input type="radio" asp-for="Questions[i].SelectedOption" value="@j" class="option-radio d-none" />
-                                <input type="text" value="@Model.Questions[i].Options[j]" class="option-input form-control" readonly />
-                            </div>
-                        }
-                    }
-                </div>
+            <div class="d-flex justify-content-between">
+                <div class="text">As the creator of the test, you cannot solve it.</div>
+                <button type="button" onclick="location.href = '@Url.Action("Edit", "Test", new { id = @Model.TestId })'" class="btn btn-outline-primary mb-2 h-auto">Edit Test</button>
             </div>
         }
     </div>
 
-    <button type="submit" id="submit-button" class="btn btn-primary w-100 mt-3" disabled>Submit</button>
+    @if (userId == null)
+    {
+        @*<p class="text">Please <a href="@Url.Action("Login", "Account", new { area = "Identity" })">log in</a> to solve this test.</p>*@
+        <p class="text">Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to solve this test.</p>
+
+    }
+
+    else
+    {
+        <div id="questions" class="@(isCreator ? "disabled" : "")">
+            @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+                <div class="question py-4 border-top position-relative" id="question-@i">
+                    <div class="question-index">@(i + 1)</div>
+                    <div class="form-group d-flex align-items-center justify-between">
+                        <input type="hidden" asp-for="Questions[i].Id" value="@Model.Questions[i].Id" />
+                        <input type="text" asp-for="Questions[i].Text" class="question-input form-control" readonly />
+                    </div>
+                    <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
+                        @if (Model.Questions[i].Options != null && Model.Questions[i].Options.Count > 0)
+                        {
+                            @for (int j = 0; j < Model.Questions[i].Options.Count; j++)
+                            {
+                                <div class="option-box" data-question="@i" data-option="@j">
+                                    <input type="radio" asp-for="Questions[i].SelectedOption" value="@j" class="option-radio d-none" />
+                                    <input type="text" asp-for="Questions[i].Options[j]" value="@Model.Questions[i].Options[j]" class="option-input form-control" readonly />
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (!isCreator && userId != null)
+    {<button type="submit" id="submit-button" class="btn btn-primary w-100 mt-3" disabled>Submit</button>}
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 </form>
 
@@ -61,16 +93,6 @@
                     selectedOptions[questionIndex] = true;
                     checkAllSelected();
                 });
-
-                //option.addEventListener('mouseover', function () {
-                //    if (!this.classList.contains('selected')) {
-                //        this.classList.add('hovered');
-                //    }
-                //});
-
-                //option.addEventListener('mouseout', function () {
-                //    this.classList.remove('hovered');
-                //});
             });
 
             function checkAllSelected() {

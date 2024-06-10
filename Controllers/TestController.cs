@@ -185,11 +185,6 @@ namespace TestMe.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(CreateTestViewModel model)
         {
-            System.Diagnostics.Debug.WriteLine(model.Title);
-            System.Diagnostics.Debug.WriteLine(model.Questions[0].Text);
-            System.Diagnostics.Debug.WriteLine(model.Questions[0].Id);
-            System.Diagnostics.Debug.WriteLine(model.Id);
-
             // Check if has at least 2 questions
             if (model.Questions.Count < 2)
             {
@@ -332,10 +327,11 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var user = await _userManager.GetUserAsync(User);
+            var userId = user == null ? "unknown" : user.Id;
 
             // Check if user has already solved this test
             var userTest = await _context.UserTests
-                .FirstOrDefaultAsync(ut => ut.TestId == id && ut.UserId == user!.Id);
+                .FirstOrDefaultAsync(ut => ut.TestId == id && ut.UserId == userId);
 
             if (userTest != null)
             {
@@ -355,12 +351,13 @@ namespace TestMe.Controllers
             var model = new SolveTestViewModel
             {
                 TestId = test.Id,
+                CreatorId = test.CreatorId,
                 Title = test.Title,
                 Questions = test.Questions.Select(q => new QuestionSolveViewModel
                 {
                     Id = q.Id,
                     Text = q.Text,
-                    Options = q.Options?.Select(o => o.Text).ToList() ?? new List<string>()
+                    Options = q.Options?.Select(o => o.Text).ToList(),
                 }).ToList()
             };
 
@@ -371,11 +368,14 @@ namespace TestMe.Controllers
         // Solve Test Form Submit
         [HttpPost]
         [Authorize]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Details(SolveTestViewModel model)
         {
+            var errors = ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .Select(x => new { x.Key, x.Value.Errors })
+                .ToArray();
             var user = await _userManager.GetUserAsync(User);
-
+            
             if (ModelState.IsValid)
             {
                 var userTest = new UserTest
@@ -393,7 +393,7 @@ namespace TestMe.Controllers
             }
 
             // If we got this far, something failed, redisplay form
-            return View("Details", model);
+            return View(model);
         }
 
         //public IActionResult Delete(int id)
