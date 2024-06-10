@@ -1,0 +1,55 @@
+﻿.details #questions.disabled {
+    opacity: 50%;
+    pointer-events: none;
+}
+
+.details .text {
+    padding: 0.375rem 0.75rem;
+}
+
+.details .option-box {
+    background-color: white;
+    color: black;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+
+.details .question-input {
+    border: none !important;
+}
+
+.details .question .options {
+    padding-left: 0px;
+}
+
+.details .option-box:hover .option-input {
+    background-color: #f9f9fa;
+    color: black;
+}
+
+.details .option-box .option-input {
+    pointer-events: none;
+}
+
+/*.details .option-box.selected {
+    background-color: #212121;
+    border-radius: 8px;
+    color: white;
+}*/
+
+/*.details .option-input {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: inherit;
+}*/
+
+.details .option-radio:checked + .option-input {
+    background-color: #212121;
+    color: white;
+}
+
+.details .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
