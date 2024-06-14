@@ -1,18 +1,17 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TestMe.Data;
-using TestMe.Models;
+﻿using Microsoft.AspNetCore.Identity; // ASP.NET Core Identity services
+using Microsoft.AspNetCore.Mvc; // MVC framework for ASP.NET Core
+using Microsoft.EntityFrameworkCore; // Entity Framework Core for database operations
+using TestMe.Data; // Application-specific data context
+using TestMe.Models; // Application models
 
 namespace TestMe.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] // Route template for API controller
+    [ApiController] // Indicates that this is an API controller
     public class TestAPIController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context; // Database context
+        private readonly UserManager<User> _userManager; // User manager for managing users
 
         public TestAPIController(ApplicationDbContext context, UserManager<User> userManager)
         {
@@ -20,7 +19,8 @@ namespace TestMe.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet]
+        // Retrieves the number of users that created at least 1 test in the system
+        [HttpGet] // HTTP GET method
         public async Task<ActionResult<int>> GetNumberOfUsersCreatedTest()
         {
             // Retrieve all tests from the database
@@ -29,9 +29,8 @@ namespace TestMe.Controllers
             // Extract unique user IDs
             var uniqueUserIds = tests.Select(t => t.CreatorId).Distinct().Count();
 
-            // Return the count of unique user IDs
+            // Return the count of unique user IDs as HTTP 200 OK response
             return Ok(uniqueUserIds);
         }
     }
 }
-

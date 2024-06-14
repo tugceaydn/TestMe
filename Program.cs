@@ -75,8 +75,6 @@ async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, UserManager<Use
     {
         var roleExist = await roleManager.RoleExistsAsync(roleName);
 
-        System.Diagnostics.Debug.WriteLine(roleName + " exists: " + roleExist);
-
         if (!roleExist)
         {
             roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));

@@ -1,18 +1,16 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TestMe.Data;
-using TestMe.Models;
-using TestMe.ViewModels;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity; // ASP.NET Core Identity services
+using Microsoft.AspNetCore.Mvc; // MVC framework for ASP.NET Core
+using Microsoft.EntityFrameworkCore; // Entity Framework Core for database operations
+using TestMe.Data; // Application-specific data context
+using TestMe.Models; // Application models
+using TestMe.ViewModels; // View models for presenting data
+
 namespace TestMe.Controllers
 {
-	public class ResultController : Controller
-	{
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+    public class ResultController : Controller
+    {
+        private readonly ApplicationDbContext _context; // Database context
+        private readonly UserManager<User> _userManager; // User manager for managing users
 
         public ResultController(ApplicationDbContext context, UserManager<User> userManager)
         {
@@ -26,10 +24,10 @@ namespace TestMe.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                // TODO :: fix url
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
+            // Retrieve user's completed tests with test details
             var userTests = await _context.UserTests
                 .Where(ut => ut.UserId == user.Id)
                 .Join(_context.Tests,
@@ -47,25 +45,8 @@ namespace TestMe.Controllers
                 .OrderByDescending(t => t.CreationDate)
                 .ToListAsync();
 
-            // Debugging information
-            System.Diagnostics.Debug.WriteLine($"User ID: {user.Id}");
-            System.Diagnostics.Debug.WriteLine($"UserTests count: {userTests.Count}");
-
-            if (userTests.Count > 0)
-            {
-                System.Diagnostics.Debug.WriteLine($"First Test ID: {userTests[0].Id}");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("No tests found for this user.");
-            }
-
-
             return View(userTests);
         }
-        // index -> all completed test
-        // result/{id} -> readonly (test + usertest) display correct answers
-        // question background red (incorrect) green (correct)
 
         // Details action to show the results of a specific test
         public async Task<IActionResult> Details(int id)
@@ -76,6 +57,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
+            // Retrieve user's test result
             var userTest = await _context.UserTests
                 .FirstOrDefaultAsync(ut => ut.TestId == id && ut.UserId == user.Id);
 
@@ -84,6 +66,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
+            // Retrieve the test details including questions and options
             var test = await _context.Tests
                 .Include(t => t.Questions)
                 .ThenInclude(q => q.Options)
@@ -94,6 +77,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
+            // Construct view model for displaying test result
             var viewModel = new TestResultViewModel
             {
                 TestId = test.Id,
@@ -111,6 +95,4 @@ namespace TestMe.Controllers
             return View(viewModel);
         }
     }
-
 }
-

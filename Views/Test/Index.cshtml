@@ -75,15 +75,15 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log("aaaa loaded");
             const x = await fetch('/api/testapi');
-            const data = await x.json();
+            const count = await x.json();
 
-            console.log({ data });
+            if (count && typeof count === 'number' && count > 0) {
+                const div = document.querySelector('#user-count');
 
-            const div = document.querySelector('#user-count');
+                div.innerHTML = `created by ${count} users`;
+            }
 
-            div.innerHTML = `created by ${data} users`;
         });
     </script>
 

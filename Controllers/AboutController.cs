@@ -1,15 +1,16 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using TestMe.Models;
+﻿// Required namespaces
+using Microsoft.AspNetCore.Mvc; // For MVC framework
 
-namespace TestMe.Controllers;
-
-public class AboutController : Controller
+namespace TestMe.Controllers
 {
-    public IActionResult Index()
+    /// The AboutController handles requests related to the "About" page of the application.
+    public class AboutController : Controller
     {
-       return View();
+        /// Returns a ViewResult object that renders the "About" page.
+        public IActionResult Index()
+        {
+            // Return the default view for the "About" page
+            return View();
+        }
     }
 }
-
