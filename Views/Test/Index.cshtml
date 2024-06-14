@@ -22,9 +22,7 @@
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h2>Tests</h2>
         @if (userId != "")
-        {
-            <button onclick="location.href = '@Url.Action("Create", "Test")'" class="btn btn-outline-primary mb-2">Create Test +</button>
-        }
+            @Html.Partial("_CreateTestButton")
     </div>
     <div class="tabs mb-3">
         <button type="button" id="all-tests" class="tab active" onclick="openTab(this, 'all-tests')">All</button>

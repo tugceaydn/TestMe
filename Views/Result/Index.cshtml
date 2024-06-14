@@ -20,7 +20,7 @@
 
 @if (userId == null)
 {
-    <p class="text">Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to solve this test.</p>
+    @Html.Partial("_LoginPrompt")
 }
 else
 {
