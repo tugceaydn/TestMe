@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Remove="Views\Test\" />
     <None Remove="Views\Error\" />
+    <None Remove="Views\Result\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -33,5 +34,6 @@
   <ItemGroup>
     <Folder Include="Views\Test\" />
     <Folder Include="Views\Error\" />
+    <Folder Include="Views\Result\" />
   </ItemGroup>
 </Project>

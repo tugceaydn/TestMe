@@ -375,7 +375,7 @@ namespace TestMe.Controllers
                 .Select(x => new { x.Key, x.Value.Errors })
                 .ToArray();
             var user = await _userManager.GetUserAsync(User);
-            
+
             if (ModelState.IsValid)
             {
                 var userTest = new UserTest

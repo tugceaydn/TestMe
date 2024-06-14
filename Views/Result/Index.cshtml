@@ -1,0 +1,58 @@
+﻿@model IEnumerable<TestMe.ViewModels.TestListViewModel>
+@using System.Security.Claims
+@inject Microsoft.AspNetCore.Identity.UserManager<TestMe.Models.User> UserManager
+
+@{
+    ViewData["Title"] = "My Results";
+
+    // Initialize userId variable
+    string? userId = null;
+
+    // Retrieve the current user
+    var user = await UserManager.GetUserAsync(User);
+
+    // Get the user ID if the user is not null
+    if (user != null)
+    {
+        userId = user.Id;
+    }
+}
+
+@if (userId == null)
+{
+    <p class="text">Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to solve this test.</p>
+}
+else
+{
+    <div class="mt-5">
+        <h2>My Results</h2>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Creator ID</th>
+                        <th>Creation Date</th>
+                        <th># Questions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var test in Model)
+                    {
+                        <tr onclick="location.href = '@Url.Action("Details", "Result", new { id = test.Id })'">
+                            <td>@test.Title</td>
+                            <td>@test.CreatorId</td>
+                            <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@test.NumberOfQuestions</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.Any())
+            {
+                <div class="w-100 text-center text-secondary mt-5">No results found</div>
+            }
+        </div>
+    </div>
+}
+
