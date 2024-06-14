@@ -22,55 +22,17 @@
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h2>Tests</h2>
         @if (userId != "")
-         {
             @Html.Partial("_CreateTestButton")
-         }
     </div>
     <div class="tabs mb-3">
         <button type="button" id="all-tests" class="tab active" onclick="openTab(this, 'all-tests')">All</button>
-        @if (userId != "") {
+        @if (userId != "")
+        {
             <button type="button" id="my-tests" class="tab" onclick="openTab(this, 'my-tests')">My Tests</button>
         }
     </div>
 
-    <div class="tab-content all-tests">
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Creator ID</th>
-                    <th>Creation Date</th>
-                    <th># Questions</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var test in Model)
-                {
-                    <tr onclick="location.href = '@Url.Action("Details", "Test", new { id = test.Id })'">
-                        <td>@test.Title</td>
-                        <td>@test.CreatorId</td>
-                        <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@test.NumberOfQuestions</td>
-                        <td>
-                            @if (test.CreatorId == userId) {
-                                <div class="tag mine">My Test</div>
-                            } else if (test.IsCompletedByMe) {
-                                <div class="tag success">Complete</div>
-                            } else {
-                                <div class="tag">Not Complete</div>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @if (Model.ToList().Count == 0)
-        {
-            <div class="w-100 text-center text-secondary mt-5">No tests found here</div>
-
-        }
-    </div>
+    @await Component.InvokeAsync("AllTests", new { tests = Model.ToList(), userId = userId })
 
     <div class="tab-content my-tests d-none">
         <table class="my-tests">

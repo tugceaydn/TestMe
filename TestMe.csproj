@@ -14,6 +14,10 @@
     <None Remove="Views\Error\" />
     <None Remove="Views\Result\" />
     <None Remove="Views\Admin\" />
+    <None Remove="Components\" />
+    <None Remove="Views\Shared\Components\" />
+    <None Remove="Views\Shared\Components\AllTests\" />
+    <None Remove="Views\Shared\Components\AllUsers\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -37,5 +41,9 @@
     <Folder Include="Views\Error\" />
     <Folder Include="Views\Result\" />
     <Folder Include="Views\Admin\" />
+    <Folder Include="Components\" />
+    <Folder Include="Views\Shared\Components\" />
+    <Folder Include="Views\Shared\Components\AllTests\" />
+    <Folder Include="Views\Shared\Components\AllUsers\" />
   </ItemGroup>
 </Project>

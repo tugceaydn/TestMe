@@ -394,7 +394,7 @@ namespace TestMe.Controllers
                 _context.UserTests.Add(userTest);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index", "Test");
+                return RedirectToAction("Details", "Result", new { Id = model.TestId });
             }
 
             // If we got this far, something failed, redisplay form

@@ -1,0 +1,40 @@
+﻿@model TestMe.Components.AllTestsViewModel
+
+<div class="tab-content all-tests">
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Creator ID</th>
+                <th>Creation Date</th>
+                <th># Questions</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var test in Model.Tests)
+            {
+                <tr onclick="location.href = '@Url.Action("Details", "Test", new { id = test.Id })'">
+                    <td>@test.Title</td>
+                    <td>@test.CreatorId</td>
+                    <td>@test.CreationDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@test.NumberOfQuestions</td>
+                    <td>
+                        @if (test.CreatorId == Model.UserId)
+                        {
+                            <div class="tag mine">My Test</div>
+                        }
+                        else if (test.IsCompletedByMe)
+                        {
+                            <div class="tag success">Complete</div>
+                        }
+                        else
+                        {
+                            <div class="tag">Not Complete</div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
