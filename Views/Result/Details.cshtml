@@ -30,11 +30,11 @@
     <div id="questions">
         @if (userId == null)
         {
-            <p class="text">Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to solve this test.</p>
+            @Html.Partial("_LoginPrompt")
         }
 
         @for (int i = 0; i < Model.Questions.Count; i++)
-            {
+        {
             var question = Model.Questions[i];
 
             <div class="question py-4 border-top position-relative" id="question-@i">
@@ -51,7 +51,8 @@
                             var correctIndex = question.AnswerIndex == j;
                             var cssClass = question.SelectedIndex == j ? "wrong" : "";
 
-                            @if (correctIndex) {
+                            @if (correctIndex)
+                            {
                                 cssClass = "correct";
                             }
 
