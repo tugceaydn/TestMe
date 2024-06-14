@@ -31,6 +31,11 @@ namespace TestMe.Controllers
             var user = await _userManager.GetUserAsync(User);
             var userId = user == null ? "unknown" : user.Id;
 
+            if(User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             if (User.Identity!.IsAuthenticated && user != null && await _userManager.IsInRoleAsync(user, "Admin") == false && await _userManager.IsInRoleAsync(user, "User") == false)
             {
                 await _userManager.AddToRoleAsync(user, "User");
