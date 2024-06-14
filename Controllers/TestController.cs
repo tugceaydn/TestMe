@@ -335,7 +335,7 @@ namespace TestMe.Controllers
 
             if (userTest != null)
             {
-                return RedirectToAction("Index", "Test");
+                return RedirectToAction("Details", "Result", new { id = userTest.TestId });
             }
 
             var test = await _context.Tests

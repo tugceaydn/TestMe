@@ -69,6 +69,8 @@ async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, UserManager<Use
     string[] roleNames = { "Admin", "User" };
     IdentityResult roleResult;
 
+    // c1020379-0fdb-430d-a498-f00bb4377ce3
+
     foreach (var roleName in roleNames)
     {
         var roleExist = await roleManager.RoleExistsAsync(roleName);
@@ -84,12 +86,12 @@ async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, UserManager<Use
     // Create a default admin user
     var adminUser = new User
     {
-        UserName = "admin",
+        UserName = "admin@example.com",
         Email = "admin@example.com",
         EmailConfirmed = true
     };
 
-    string adminPassword = "Admin@1234";
+    string adminPassword = "Admin1234!";
     var user = await userManager.FindByEmailAsync(adminUser.Email);
 
     if (user == null)

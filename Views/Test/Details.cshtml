@@ -21,6 +21,7 @@
 
 <form asp-action="Details" method="post" class="test-form col-7 mx-auto details">
     <input type="hidden" asp-for="CreatorId" />
+    <input type="hidden" asp-for="TestId" />
     <div class="form-group">
         <input asp-for="Title" class="test-title-input form-control" readonly />
         @if (isCreator)
@@ -35,10 +36,7 @@
     @if (userId == null)
     {
         <p class="text">Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to solve this test.</p>
-
-    }
-
-    else
+    } else
     {
         <div id="questions" class="@(isCreator ? "disabled" : "")">
             @for (int i = 0; i < Model.Questions.Count; i++)

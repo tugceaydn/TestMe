@@ -44,11 +44,13 @@ namespace TestMe.Controllers
                         NumberOfQuestions = t.Questions.Count,
                         IsCompletedByMe = true
                     })
+                .OrderByDescending(t => t.CreationDate)
                 .ToListAsync();
 
             // Debugging information
             System.Diagnostics.Debug.WriteLine($"User ID: {user.Id}");
             System.Diagnostics.Debug.WriteLine($"UserTests count: {userTests.Count}");
+
             if (userTests.Count > 0)
             {
                 System.Diagnostics.Debug.WriteLine($"First Test ID: {userTests[0].Id}");
@@ -64,6 +66,51 @@ namespace TestMe.Controllers
         // index -> all completed test
         // result/{id} -> readonly (test + usertest) display correct answers
         // question background red (incorrect) green (correct)
+
+        // Details action to show the results of a specific test
+        public async Task<IActionResult> Details(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            var userTest = await _context.UserTests
+                .FirstOrDefaultAsync(ut => ut.TestId == id && ut.UserId == user.Id);
+
+            if (userTest == null)
+            {
+                return NotFound();
+            }
+
+            var test = await _context.Tests
+                .Include(t => t.Questions)
+                .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (test == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TestResultViewModel
+            {
+                TestId = test.Id,
+                Title = test.Title,
+                Questions = test.Questions.Select((q, index) => new QuestionResultViewModel
+                {
+                    Id = q.Id,
+                    Text = q.Text,
+                    Options = q.Options,
+                    AnswerIndex = q.AnswerIndex,
+                    SelectedIndex = userTest.UserAnswers[index]
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
     }
+
 }
 
