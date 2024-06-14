@@ -1,0 +1,85 @@
+﻿@model TestMe.ViewModels.TestResultViewModel
+@inject Microsoft.AspNetCore.Identity.UserManager<TestMe.Models.User> UserManager
+
+@{
+    ViewData["Title"] = "Test Results";
+    // Initialize userId variable
+    string? userId = null;
+
+    // Retrieve the current user
+    var user = await UserManager.GetUserAsync(User);
+
+    var correctCount = Model.Questions.Where(q => q.AnswerIndex == q.SelectedIndex).Count();
+    var totalCount = Model.Questions.Count;
+
+    // Get the user ID if the user is not null
+    if (user != null)
+    {
+        userId = user.Id;
+    }
+}
+
+<div class="test-form col-7 mx-auto details results mt-5">
+    <div class="d-flex align-items-center justify-content-between">
+        <h2>@Model.Title</h2>
+        <div class="fs-3 fw-normal">
+            @correctCount/@totalCount
+        </div>
+    </div>
+
+    <div id="questions">
+        @if (userId == null)
+        {
+            <p class="text">Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to solve this test.</p>
+        }
+
+        @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+            var question = Model.Questions[i];
+
+            <div class="question py-4 border-top position-relative" id="question-@i">
+                <div class="question-index">@(i + 1)</div>
+                <div class="form-group d-flex align-items-center justify-between">
+                    <input type="text" class="question-input form-control" value="@question.Text" readonly />
+                </div>
+                <div class="options form-group d-flex flex-column form-group gap-3 mt-3">
+                    @if (question.Options != null && question.Options.Count > 0)
+                    {
+                        @for (int j = 0; j < question.Options.Count; j++)
+                        {
+                            var option = question.Options[j];
+                            var correctIndex = question.AnswerIndex == j;
+                            var cssClass = question.SelectedIndex == j ? "wrong" : "";
+
+                            @if (correctIndex) {
+                                cssClass = "correct";
+                            }
+
+                            <div class="option-box pe-none">
+                                <input type="text" value="@Model.Questions[i].Options[j].Text" class="option-input form-control @cssClass" readonly />
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .correct {
+        background-color: #d4edda;
+    }
+
+    .wrong {
+        background-color: #f8d7da;
+    }
+
+    .question-text {
+        font-weight: bold;
+    }
+
+    .option-text {
+        margin-left: 10px;
+    }
+</style>

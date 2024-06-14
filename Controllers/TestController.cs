@@ -340,7 +340,7 @@ namespace TestMe.Controllers
 
             if (userTest != null)
             {
-                return RedirectToAction("Index", "Test");
+                return RedirectToAction("Details", "Result", new { id = userTest.TestId });
             }
 
             var test = await _context.Tests
@@ -380,7 +380,7 @@ namespace TestMe.Controllers
                 .Select(x => new { x.Key, x.Value.Errors })
                 .ToArray();
             var user = await _userManager.GetUserAsync(User);
-            
+
             if (ModelState.IsValid)
             {
                 var userTest = new UserTest

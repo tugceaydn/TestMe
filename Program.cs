@@ -69,6 +69,8 @@ async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, UserManager<Use
     string[] roleNames = { "Admin", "User" };
     IdentityResult roleResult;
 
+    // c1020379-0fdb-430d-a498-f00bb4377ce3
+
     foreach (var roleName in roleNames)
     {
         var roleExist = await roleManager.RoleExistsAsync(roleName);
