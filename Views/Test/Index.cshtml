@@ -20,7 +20,10 @@
 
 <div class="mt-5">
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2>Tests</h2>
+        <div class="d-flex align-items-center">
+            <h2 class="mr-3">Tests</h2>
+            <div id="user-count" class="text-secondary"></div>
+        </div>
         @if (userId != "")
             @Html.Partial("_CreateTestButton")
     </div>
@@ -71,27 +74,40 @@
 
 @section Scripts {
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("aaaa loaded");
+            const x = await fetch('/api/testapi');
+            const data = await x.json();
+
+            console.log({ data });
+
+            const div = document.querySelector('#user-count');
+
+            div.innerHTML = `created by ${data} users`;
+        });
+    </script>
+
+    <script>
         function openTab(element, tabid) {
             const tables = document.querySelectorAll(".tab-content");
 
-            // make all tables disappear
-            for (let i = 0; i < tables.length; i++) {
-                tables[i].classList.add('d-none');
+        // make all tables disappear
+        for (let i = 0; i < tables.length; i++) {
+            tables[i].classList.add('d-none');
             }
 
-            const tabs = document.querySelectorAll(".tab");
+        const tabs = document.querySelectorAll(".tab");
 
-            // make all tabs inactive
-            for (let i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
+        // make all tabs inactive
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove('active');
             }
 
-            // make selected table appear
-            document.querySelector(`.tab-content.${tabid}`).classList.remove('d-none');
+        // make selected table appear
+        document.querySelector(`.tab-content.${tabid}`).classList.remove('d-none');
 
-            // make selected tab active
-            element.classList.add('active');
-
+        // make selected tab active
+        element.classList.add('active');
         }
     </script>
 }
